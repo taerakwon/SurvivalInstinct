@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour {
 		}// end of if grounded
 
 		// Camera follows only if x > -8.22f
-		if (this._transform.position.x >= -5.2f && this._isDead == false) {
+		if (this._transform.position.x >= -4.3f && this._isDead == false) {
 			// Camera follows player (transform position)
 			this.mainCamera.transform.position = new Vector3(this._transform.position.x * 0.8f, this._transform.position.y * 0.8f, -10f); // Camera moves at 80% per frame
 		}
