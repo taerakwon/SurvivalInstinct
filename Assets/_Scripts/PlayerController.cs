@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour {
 	void FixedUpdate () {
 		// Check if input is present for movement
 		this._move = Input.GetAxis("Horizontal");
+
 		if (this._move > 0f) {
 			this._move = 1;
 			this._isFacingRight = true; // Faces right when moves to right
@@ -44,8 +45,13 @@ public class PlayerController : MonoBehaviour {
 		// Move
 		this._rigidbody.AddForce (new Vector2 (this._move * this.PlayerSpeed, 0f), ForceMode2D.Force);
 
-		// Camera follows player (transform position)
-		this.mainCamera.transform.position = new Vector3(this._transform.position.x * 0.8f, this._transform.position.y * 0.8f, -10f); // Camera moves at 80%
+		// Camera follows only if x > -8.22f
+		if (this._transform.position.x >= -8.22f) {
+			// Camera follows player (transform position)
+			this.mainCamera.transform.position = new Vector3(this._transform.position.x * 0.8f, this._transform.position.y * 0.8f, -10f); // Camera moves at 80%
+		}
+
+
 	}
 	// PUBLIC METHOD
 
@@ -63,9 +69,9 @@ public class PlayerController : MonoBehaviour {
 	// Flip Method
 	private void _flip(){
 		if (this._isFacingRight) {
-			this._transform.localScale = new Vector2 (3f, 3f);
+			this._transform.localScale = new Vector2 (1f, 1f);
 		} else {
-			this._transform.localScale = new Vector2 (-3f, 3f);
+			this._transform.localScale = new Vector2 (-1f, 1f);
 		}
 	}
 
