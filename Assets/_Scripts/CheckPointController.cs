@@ -15,13 +15,22 @@ using System.Collections;
 public class CheckPointController : MonoBehaviour {
 	// PRIVATE INSTANCE VARIABLE
 	private Transform _transform;
+	private Animator _animator;
+	private bool _flagChecked;
+
+	[SerializeField]
+	private AudioSource _flagSound;
 
 	// PUBLIC INSTANCE VARIABLE
 	public Transform SpawnPoint;
 
+
+
 	// Use this for initialization
 	void Start () {
+		this._flagChecked = false;
 		this._transform = GetComponent<Transform> ();			
+		this._animator = GetComponent<Animator> ();
 	}
 	
 	// Update is called once per frame
@@ -30,9 +39,15 @@ public class CheckPointController : MonoBehaviour {
 		
 	private void OnTriggerEnter2D(Collider2D other)
 	{
-		// When player hits
-		if (other.gameObject.CompareTag ("Player")) {
-			this.SpawnPoint.position = new Vector2 (this._transform.position.x, this._transform.position.y + 1f);
+		if (this._flagChecked == false) { // Only allow once
+			
+			// When player hits
+			if (other.gameObject.CompareTag ("Player")) {
+				this._flagChecked = true;
+				this._flagSound.Play ();
+				this._animator.SetBool ("FlagChecked", true);
+				this.SpawnPoint.position = new Vector2 (this._transform.position.x, this._transform.position.y + 1f);
+			}
 		}
 	}
 }

@@ -6,7 +6,8 @@ Last Edited Date: Oct 19, 2016
 Short Revision: This class is for enemy control
 History: 
 
-Oct-19: Added Private, Public Variables: Enemies and move
+Oct-19: Enemy speed changes when sees player
+		Added Private, Public Variables: Enemies and move
 		Created
 */
 

@@ -24,14 +24,16 @@ public class PlayerController : MonoBehaviour {
 	private bool _isFacingRight;
 	private bool _isGrounded; // Checks if player is grounded
 	private float _jump;
-
+	private Animator _animator;
+	private GameObject _mainCamera;
+	private GameObject _SpawnPoint;
+	private int _lives;
 
 	// PUBLIC VARIABLES
 	public float PlayerSpeed = 25f;
 	public float JumpForce = 350f;
 	public int PlayerLife = 3;
-	public Camera mainCamera;
-	public Transform SpawnPoint;
+
 
 	[Header("Sounds")]
 	public AudioSource JumpSound;
@@ -57,16 +59,19 @@ public class PlayerController : MonoBehaviour {
 
 			// If you are pressing d or right arrow
 			if (this._move > 0f) {
+				this._animator.SetInteger("PlayerState", 1);
 				this._move = 1f;
 				this._isFacingRight = true; // Faces right when moves to right
 				this._flip ();
 			}
 			else if (this._move < 0f) { // If you are pressing a or left arrow		
+				this._animator.SetInteger("PlayerState", 1);
 				this._move = -1f;
 				this._isFacingRight = false; // Faces left when moves to left
 				this._flip ();
 			} 
 			else { // If you are not presssing anything
+				this._animator.SetInteger("PlayerState", 0);
 				this._move = 0f;
 				// Instantly Stops
 				this._rigidbody.velocity = Vector2.zero;
@@ -74,6 +79,7 @@ public class PlayerController : MonoBehaviour {
 
 			// check if input is present for jumping
 			if (Input.GetKeyDown (KeyCode.Space)) {
+				this._animator.SetInteger ("PlayerState", 2);
 				this.JumpSound.Play ();
 				this._jump = 1f;
 			}
@@ -90,7 +96,7 @@ public class PlayerController : MonoBehaviour {
 		// Camera follows only if x > -8.22f
 		if (this._transform.position.x >= -4.3f) {
 			// Camera follows player (transform position)
-			this.mainCamera.transform.position = new Vector3(this._transform.position.x, this._transform.position.y + 1f, -10f); // Camera moves at 80% per frame
+			this._mainCamera.transform.position = new Vector3(this._transform.position.x, this._transform.position.y + 1f, -10f); // Camera moves at 80% per frame
 		}
 	}
 	// PUBLIC METHOD
@@ -100,9 +106,13 @@ public class PlayerController : MonoBehaviour {
 	// Initialises character variables
 	private void _initialise()
 	{
+		this._lives = 4;
 		this._jump = 0f;
 		this._transform = GetComponent<Transform> (); // Gets Transform component of player
 		this._rigidbody = GetComponent<Rigidbody2D> (); // Gets Rigidbody2D component of player
+		this._animator = GetComponent<Animator>(); // Gets Animator of component
+		this._mainCamera = GameObject.FindWithTag("MainCamera");
+		this._SpawnPoint = GameObject.FindWithTag("SpawnPoint");
 		this._move = 0f;
 		this._isFacingRight = true;
 		this._isGrounded = false;
@@ -123,7 +133,8 @@ public class PlayerController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("DeathPlane")) {
 			// transport player's position to spawn point
 			this.ManScream.Play ();
-			this._respawn ();
+			this._lives -= 1;
+			this._transform.position = this._SpawnPoint.transform.position; //Respawn
 		}
 	}
 
@@ -143,9 +154,4 @@ public class PlayerController : MonoBehaviour {
 			
 	}
 
-	// Respawn when _respawnTime < 0
-	private void _respawn()
-	{		
-		this._transform.position = this.SpawnPoint.position;
-	}
 }
