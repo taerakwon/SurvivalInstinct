@@ -32,7 +32,7 @@ public class CheckPointController : MonoBehaviour {
 	{
 		// When player hits
 		if (other.gameObject.CompareTag ("Player")) {
-			this.SpawnPoint.position = this._transform.position;
+			this.SpawnPoint.position = new Vector2 (this._transform.position.x, this._transform.position.y + 1f);
 		}
 	}
 }

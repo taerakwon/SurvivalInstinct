@@ -3,7 +3,7 @@ Game Title: Survival Instrinct
 Created By: Taera Kwon (#300755802)
 Last Edited By: Taera Kwon
 Last Edited Date: Oct 19, 2016
-Short Revision: This class is for player controll
+Short Revision: This class is for player control
 History: 
 
 Oct-19: Added respawn feature
@@ -24,8 +24,6 @@ public class PlayerController : MonoBehaviour {
 	private bool _isFacingRight;
 	private bool _isGrounded; // Checks if player is grounded
 	private float _jump;
-	private float _respawnTime = 7f;
-	private bool _isDead;
 
 
 	// PUBLIC VARIABLES
@@ -47,15 +45,10 @@ public class PlayerController : MonoBehaviour {
 	// Update function
 	void Update()
 	{
-		if (this._isDead && this.PlayerLife > 0) {
-			this._respawnTime -= 0.1f;
-		}
-		this._respawn ();
 	}
 	
 	// Update is called once per frame (For Physics)
 	void FixedUpdate () {
-			
 		// If Player is Grounded, then allow
 		if (this._isGrounded) 
 		{		
@@ -95,9 +88,9 @@ public class PlayerController : MonoBehaviour {
 		}// end of if grounded
 
 		// Camera follows only if x > -8.22f
-		if (this._transform.position.x >= -4.3f && this._isDead == false) {
+		if (this._transform.position.x >= -4.3f) {
 			// Camera follows player (transform position)
-			this.mainCamera.transform.position = new Vector3(this._transform.position.x * 0.8f, this._transform.position.y * 0.8f, -10f); // Camera moves at 80% per frame
+			this.mainCamera.transform.position = new Vector3(this._transform.position.x, this._transform.position.y + 1f, -10f); // Camera moves at 80% per frame
 		}
 	}
 	// PUBLIC METHOD
@@ -107,7 +100,6 @@ public class PlayerController : MonoBehaviour {
 	// Initialises character variables
 	private void _initialise()
 	{
-		this._isDead = false;
 		this._jump = 0f;
 		this._transform = GetComponent<Transform> (); // Gets Transform component of player
 		this._rigidbody = GetComponent<Rigidbody2D> (); // Gets Rigidbody2D component of player
@@ -131,13 +123,12 @@ public class PlayerController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("DeathPlane")) {
 			// transport player's position to spawn point
 			this.ManScream.Play ();
-			this.PlayerLife -= 1;
-			this._isDead = true;
+			this._respawn ();
 		}
 	}
 
 	// When player is colliding
-	private void OnCollisionEnter2D(Collision2D other){		
+	private void OnCollisionStay2D(Collision2D other){		
 		if (other.gameObject.CompareTag ("Platform")) {
 			this._isGrounded = true;
 		}
@@ -155,10 +146,6 @@ public class PlayerController : MonoBehaviour {
 	// Respawn when _respawnTime < 0
 	private void _respawn()
 	{		
-		if (this._respawnTime < 0f) {
-			this._transform.position = this.SpawnPoint.position;
-			this._respawnTime = 5f;
-			this._isDead = false;
-		}
+		this._transform.position = this.SpawnPoint.position;
 	}
 }
