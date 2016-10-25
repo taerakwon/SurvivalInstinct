@@ -2,10 +2,10 @@
 Game Title: Survival Instrinct
 Created By: Taera Kwon (#300755802)
 Last Edited By: Taera Kwon
-Last Edited Date: Oct 19, 2016
+Last Edited Date: Oct 21, 2016
 Short Revision: This class is for player control
 History: 
-
+Oct-25: Added bulletin board
 Oct-19: Added respawn feature
 		Added DeathPlane Interaction
 		Changed Timescale
@@ -24,10 +24,13 @@ public class PlayerController : MonoBehaviour {
 	private bool _isFacingRight;
 	private bool _isGrounded; // Checks if player is grounded
 	private float _jump;
+	private bool _isBulletinVisible; // If Player is on BulletinBoard
+
 	private Animator _animator;
 	private GameObject _mainCamera;
 	private GameObject _SpawnPoint;
-	private int _lives;
+	private GameObject _gameControllerObject;
+	private GameController _gameController;
 
 	// PUBLIC VARIABLES
 	public float PlayerSpeed = 25f;
@@ -38,6 +41,8 @@ public class PlayerController : MonoBehaviour {
 	[Header("Sounds")]
 	public AudioSource JumpSound;
 	public AudioSource ManScream;
+	public AudioSource PickupSound;
+	public AudioSource OuchSound;
 
 	// Use this for initialization
 	void Start () {
@@ -106,16 +111,18 @@ public class PlayerController : MonoBehaviour {
 	// Initialises character variables
 	private void _initialise()
 	{
-		this._lives = 4;
 		this._jump = 0f;
 		this._transform = GetComponent<Transform> (); // Gets Transform component of player
 		this._rigidbody = GetComponent<Rigidbody2D> (); // Gets Rigidbody2D component of player
 		this._animator = GetComponent<Animator>(); // Gets Animator of component
 		this._mainCamera = GameObject.FindWithTag("MainCamera");
 		this._SpawnPoint = GameObject.FindWithTag("SpawnPoint");
+		this._gameControllerObject = GameObject.Find ("Game Controller");
+		this._gameController = this._gameControllerObject.GetComponent<GameController> ();
 		this._move = 0f;
 		this._isFacingRight = true;
 		this._isGrounded = false;
+		this._isBulletinVisible = false; // Player cannot see Bulletin Board
 
 	}
 
@@ -133,9 +140,37 @@ public class PlayerController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("DeathPlane")) {
 			// transport player's position to spawn point
 			this.ManScream.Play ();
-			this._lives -= 1;
+			this._gameController.LivesValue -= 1;
 			this._transform.position = this._SpawnPoint.transform.position; //Respawn
 		}
+
+		// When you pickup item
+		if (other.gameObject.CompareTag ("Item")) {
+			this.PickupSound.Play ();
+			this._gameController.FoodValue += 1;
+			Destroy (other.gameObject);
+		}
+
+		if (other.gameObject.CompareTag ("BulletinBoard")) {
+			this._gameController.MessageVisibility = true;				
+		}
+	}
+
+	private void OnTriggerExit2D(Collider2D other)
+	{
+		if (other.gameObject.CompareTag ("BulletinBoard")) {
+			this._gameController.MessageVisibility = false;				
+		}
+	}
+
+	// When play is colliding (instance)
+	private void OnCollisionEnter2D(Collision2D other){
+		if (other.gameObject.CompareTag ("Enemy")) {
+			this._gameController.LivesValue -= 1;
+			this.OuchSound.Play ();
+			this._transform.position = this._SpawnPoint.transform.position; // Respawn
+		}
+	
 	}
 
 	// When player is colliding
