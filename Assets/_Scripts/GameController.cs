@@ -2,10 +2,11 @@
 Game Title: Survival Instrinct
 Created By: Taera Kwon (#300755802)
 Last Edited By: Taera Kwon
-Last Edited Date: Oct 19, 2016
+Last Edited Date: Oct 25, 2016
 Short Revision: This class is for Game Controllers (Ex- Scores, behaviours)
 History: 
-Oct-25: Message (Bulletin Message) Added
+Oct-25: Poison Particles added
+		Message (Bulletin Message) Added
 Oct-21:
 		Created
 */
@@ -29,6 +30,8 @@ public class GameController : MonoBehaviour {
 
 	[Header("Message")]
 	public GameObject BulletinMessage;
+	[Header("Particle")]
+	public ParticleSystem PoisonParticle;
 
 	// Use this for initialization
 	void Start () {
@@ -80,5 +83,10 @@ public class GameController : MonoBehaviour {
 		set{
 			this._messageVisible = value;
 		}
+	}
+
+	public void PlayPoisonParticle()
+	{
+		this.PoisonParticle.Play ();
 	}
 }

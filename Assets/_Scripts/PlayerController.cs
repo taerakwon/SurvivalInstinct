@@ -2,10 +2,11 @@
 Game Title: Survival Instrinct
 Created By: Taera Kwon (#300755802)
 Last Edited By: Taera Kwon
-Last Edited Date: Oct 21, 2016
+Last Edited Date: Oct 25, 2016
 Short Revision: This class is for player control
 History: 
-Oct-25: Added bulletin board
+Oct-25: Added poison trap effects
+		Added bulletin board
 Oct-19: Added respawn feature
 		Added DeathPlane Interaction
 		Changed Timescale
@@ -25,6 +26,8 @@ public class PlayerController : MonoBehaviour {
 	private bool _isGrounded; // Checks if player is grounded
 	private float _jump;
 	private bool _isBulletinVisible; // If Player is on BulletinBoard
+	private bool _poisonActive;
+	private float _poisonCounter = 100;
 
 	private Animator _animator;
 	private GameObject _mainCamera;
@@ -32,17 +35,22 @@ public class PlayerController : MonoBehaviour {
 	private GameObject _gameControllerObject;
 	private GameController _gameController;
 
+
 	// PUBLIC VARIABLES
 	public float PlayerSpeed = 25f;
 	public float JumpForce = 350f;
 	public int PlayerLife = 3;
-
 
 	[Header("Sounds")]
 	public AudioSource JumpSound;
 	public AudioSource ManScream;
 	public AudioSource PickupSound;
 	public AudioSource OuchSound;
+
+	[Header("Textboxes")]
+	public GameObject PoisonText;
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -52,6 +60,16 @@ public class PlayerController : MonoBehaviour {
 	// Update function
 	void Update()
 	{
+		if (this._poisonActive == true) {
+			this._poisonCounter -= 1;	
+		}
+		if (this._poisonCounter <= 0) {
+			this.PoisonText.SetActive (false);
+			this._poisonActive = false;
+			this._poisonCounter = 100;
+			this._gameController.LivesValue -= 1;
+			this._transform.position = this._SpawnPoint.transform.position; //Respawn
+		}
 	}
 	
 	// Update is called once per frame (For Physics)
@@ -111,6 +129,8 @@ public class PlayerController : MonoBehaviour {
 	// Initialises character variables
 	private void _initialise()
 	{
+		this.PoisonText.SetActive (false);
+		this._poisonActive = false;
 		this._jump = 0f;
 		this._transform = GetComponent<Transform> (); // Gets Transform component of player
 		this._rigidbody = GetComponent<Rigidbody2D> (); // Gets Rigidbody2D component of player
@@ -123,7 +143,6 @@ public class PlayerController : MonoBehaviour {
 		this._isFacingRight = true;
 		this._isGrounded = false;
 		this._isBulletinVisible = false; // Player cannot see Bulletin Board
-
 	}
 
 	// Flip Method
@@ -154,12 +173,19 @@ public class PlayerController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("BulletinBoard")) {
 			this._gameController.MessageVisibility = true;				
 		}
+
+		if (other.gameObject.CompareTag ("TreasureBox")) {
+			this.PoisonText.SetActive (true);
+			this._gameController.PlayPoisonParticle(); // Plays Poison Particle
+			this.ManScream.Play ();	
+			this._poisonActive = true;
+		}
 	}
 
 	private void OnTriggerExit2D(Collider2D other)
 	{
 		if (other.gameObject.CompareTag ("BulletinBoard")) {
-			this._gameController.MessageVisibility = false;				
+			this._gameController.MessageVisibility = false;
 		}
 	}
 
