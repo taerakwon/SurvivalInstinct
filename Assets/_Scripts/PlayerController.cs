@@ -5,7 +5,9 @@ Last Edited By: Taera Kwon
 Last Edited Date: Oct 25, 2016
 Short Revision: This class is for player control
 History: 
-Oct-25: Added poison trap effects
+Oct-25: End Game (Won) Trigger
+		Player cannot move when poisoned (Before death)
+		Added poison trap effects
 		Added bulletin board
 Oct-19: Added respawn feature
 		Added DeathPlane Interaction
@@ -34,6 +36,7 @@ public class PlayerController : MonoBehaviour {
 	private GameObject _SpawnPoint;
 	private GameObject _gameControllerObject;
 	private GameController _gameController;
+	private bool _playerWon; // Player Won default = false
 
 
 	// PUBLIC VARIABLES
@@ -74,7 +77,7 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame (For Physics)
 	void FixedUpdate () {
-		// If Player is Grounded, then allow
+		// If Player is Grounded, then allow movement
 		if (this._isGrounded) 
 		{		
 			// Check if input is present for movement
@@ -115,6 +118,13 @@ public class PlayerController : MonoBehaviour {
 			this._move = 0f;
 			this._jump = 0f;
 		}// end of if grounded
+		// If player is poisoned
+		if (this._poisonActive == true) {
+			this._animator.SetInteger("PlayerState", 0);
+			this._move = 0f;
+			// Instantly Stops
+			this._rigidbody.velocity = Vector2.zero;			
+		}
 
 		// Camera follows only if x > -8.22f
 		if (this._transform.position.x >= -4.3f) {
@@ -129,6 +139,7 @@ public class PlayerController : MonoBehaviour {
 	// Initialises character variables
 	private void _initialise()
 	{
+		this._playerWon = false;
 		this.PoisonText.SetActive (false);
 		this._poisonActive = false;
 		this._jump = 0f;
@@ -180,6 +191,11 @@ public class PlayerController : MonoBehaviour {
 			this.ManScream.Play ();	
 			this._poisonActive = true;
 		}
+
+		if (other.gameObject.CompareTag ("EndPoint")) {
+			this._playerWon = true;
+			this._gameController.GameOver (this._playerWon);
+		}
 	}
 
 	private void OnTriggerExit2D(Collider2D other)
@@ -214,5 +230,7 @@ public class PlayerController : MonoBehaviour {
 		}
 			
 	}
+
+
 
 }
